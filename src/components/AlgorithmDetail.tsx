@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, Link, Navigate } from 'react-router-dom';
 import { transform } from 'sucrase';
+import ReactMarkdown from 'react-markdown';
 import { getAlgorithmById, algorithms } from '../data/algorithms';
 import CodeBlock from './CodeBlock';
 import CodeEditor from './CodeEditor';
@@ -106,12 +107,16 @@ const AlgorithmDetail: React.FC = () => {
           const inputClone = JSON.parse(JSON.stringify(tc.input));
           const result = userFn(...inputClone);
           
-          const passed = JSON.stringify(result) === JSON.stringify(tc.expected);
+          // If result is undefined (void function), check if the first argument matches expected
+          // This supports in-place algorithms like reverse(nums)
+          const actual = result === undefined ? inputClone[0] : result;
+          
+          const passed = JSON.stringify(actual) === JSON.stringify(tc.expected);
           
           return {
             input: JSON.stringify(tc.input),
             expected: JSON.stringify(tc.expected),
-            actual: JSON.stringify(result),
+            actual: JSON.stringify(actual),
             passed,
           };
         } catch (err: any) {
@@ -155,7 +160,9 @@ const AlgorithmDetail: React.FC = () => {
 
       <div className="mb-8">
         <h1 className="text-4xl font-bold mb-4 text-gray-900 dark:text-white">{algo.name}</h1>
-        <p className="text-xl text-gray-600 dark:text-gray-300 mb-6 leading-relaxed">{algo.summary}</p>
+        <div className="text-xl text-gray-600 dark:text-gray-300 mb-6 leading-relaxed prose dark:prose-invert max-w-none">
+          <ReactMarkdown>{algo.summary}</ReactMarkdown>
+        </div>
 
         <div className="flex flex-wrap gap-3 mb-6">
           <span className="px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300">

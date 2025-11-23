@@ -112,8 +112,8 @@ const AlgorithmList: React.FC = () => {
                   </span>
                 </div>
                 
-                <p className="text-gray-600 dark:text-gray-400 text-sm mb-6 line-clamp-2">
-                  {algo.summary}
+                <p className="text-gray-600 dark:text-gray-400 text-sm mb-6 line-clamp-3">
+                  {algo.summary.split('\n\n')[0]}
                 </p>
 
                 <div className="flex flex-wrap gap-2 mt-auto">

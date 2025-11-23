@@ -19,7 +19,7 @@ export const algorithms: Algorithm[] = [
     category: 'Array / Search',
     difficulty: 'Easy',
     summary:
-      'Classic binary search on a sorted array. O(log n) time, O(1) space.',
+      'Find the index of a target value in a sorted array. Returns -1 if not found.\n\n**Example:**\nInput: `nums = [-1, 0, 3, 5, 9, 12]`, `target = 9`\nOutput: `4`',
     tags: ['array', 'search', 'logn'],
     stub: `function binarySearch(nums: number[], target: number): number {
   // TODO: write code below
@@ -54,7 +54,7 @@ export const algorithms: Algorithm[] = [
     name: 'Depth-First Search (DFS)',
     category: 'Graph / Tree',
     difficulty: 'Medium',
-    summary: 'Recursive DFS for tree and graph traversal.',
+    summary: 'Traverse a tree or graph by exploring as far as possible along each branch before backtracking.\n\n**Example:**\nInput: Tree `1 -> [2, 3]`\nOutput: `1, 2, 3` (Pre-order traversal)',
     tags: ['graph', 'tree', 'dfs'],
     stub: `// DFS.ts
 
@@ -116,7 +116,7 @@ function dfsTree(root: TreeNode | null): void {
     name: 'Breadth-First Search (BFS)',
     category: 'Graph / Tree',
     difficulty: 'Medium',
-    summary: 'Level-order traversal for graphs or trees using a queue.',
+    summary: 'Traverse a tree or graph level by level using a queue.\n\n**Example:**\nInput: Tree `1 -> [2, 3]`\nOutput: `1, 2, 3` (Level-order traversal)',
     tags: ['graph', 'tree', 'bfs', 'queue'],
     stub: `// BFS.ts
 
@@ -161,7 +161,7 @@ function bfs(start: number, graph: AdjList): void {
     name: 'Sliding Window (Fixed & Variable)',
     category: 'Array / String',
     difficulty: 'Medium',
-    summary: 'Contiguous subarray/substring problems (sums, constraints).',
+    summary: 'Find the maximum sum of a contiguous subarray of size `k`.\n\n**Example:**\nInput: `nums = [2, 1, 5, 1, 3, 2]`, `k = 3`\nOutput: `9` (Subarray `[5, 1, 3]`)',
     tags: ['array', 'string', 'sliding-window'],
     stub: `// SlidingWindow.ts
 
@@ -222,13 +222,13 @@ function longestUniqueSubstring(s: string): number {
 `,
   },
   {
-    id: 'two-pointers',
-    name: 'Two Pointers',
+    id: 'two-sum-sorted',
+    name: 'Two Sum II (Sorted Array)',
     category: 'Array',
     difficulty: 'Easy',
-    summary: 'Sorted arrays, partitioning, reversing, pair-sum.',
+    summary: 'Find two numbers in a sorted array that add up to a specific target number.\n\n**Example:**\nInput: `nums = [2, 7, 11, 15]`, `target = 9`\nOutput: `[0, 1]` (Indices of 2 and 7)',
     tags: ['array', 'two-pointers'],
-    stub: `// TwoPointers.ts
+    stub: `// TwoSumSorted.ts
 
 // Two-sum in sorted array (returns indices)
 function twoSumSorted(nums: number[], target: number): number[] {
@@ -240,13 +240,6 @@ function twoSumSorted(nums: number[], target: number): number[] {
   //   - if sum < target, left++
   //   - else right--
   return [-1, -1];
-}
-
-// Reverse an array in-place
-function reverse(nums: number[]): void {
-  // TODO:
-  // - left = 0, right = n-1
-  // - swap and move pointers
 }
 `,
     solution: `function twoSumSorted(nums: number[], target: number): number[] {
@@ -265,8 +258,31 @@ function reverse(nums: number[]): void {
   }
   return [-1, -1];
 }
+`,
+    testCases: [
+      { input: [[2, 7, 11, 15], 9], expected: [0, 1] },
+      { input: [[2, 3, 4], 6], expected: [0, 2] },
+      { input: [[-1, 0], -1], expected: [0, 1] },
+      { input: [[1, 2], 9], expected: [-1, -1] },
+    ],
+  },
+  {
+    id: 'reverse-array',
+    name: 'Reverse Array',
+    category: 'Array',
+    difficulty: 'Easy',
+    summary: 'Reverse the elements of an array in-place using two pointers.\n\n**Example:**\nInput: `[1, 2, 3, 4, 5]`\nOutput: `[5, 4, 3, 2, 1]`',
+    tags: ['array', 'two-pointers'],
+    stub: `// ReverseArray.ts
 
+// Reverse an array in-place
 function reverse(nums: number[]): void {
+  // TODO:
+  // - left = 0, right = n-1
+  // - swap and move pointers
+}
+`,
+    solution: `function reverse(nums: number[]): void {
   let left = 0;
   let right = nums.length - 1;
 
@@ -279,13 +295,19 @@ function reverse(nums: number[]): void {
   }
 }
 `,
+    testCases: [
+      { input: [[1, 2, 3, 4, 5]], expected: [5, 4, 3, 2, 1] },
+      { input: [['h', 'e', 'l', 'l', 'o']], expected: ['o', 'l', 'l', 'e', 'h'] },
+      { input: [[1]], expected: [1] },
+      { input: [[]], expected: [] },
+    ],
   },
   {
     id: 'prefix-sum',
     name: 'Prefix Sum',
     category: 'Array',
     difficulty: 'Easy',
-    summary: 'Precompute cumulative sums for O(1) range queries.',
+    summary: 'Calculate the sum of elements in a range `[L, R]` in O(1) time using precomputed sums.\n\n**Example:**\nInput: `nums = [1, 2, 3, 4, 5]`, Range `[1, 3]` (indices)\nOutput: `9` (2 + 3 + 4)',
     tags: ['array', 'prefix-sum'],
     stub: `// PrefixSum.ts
 
@@ -322,7 +344,7 @@ function rangeSum(pre: number[], l: number, r: number): number {
     name: 'HashMaps & Frequency Counting',
     category: 'Array / String',
     difficulty: 'Easy',
-    summary: 'Anagrams, frequency counts, membership checks.',
+    summary: 'Determine if two strings are anagrams of each other (contain same characters with same frequencies).\n\n**Example:**\nInput: `s = "anagram"`, `t = "nagaram"`\nOutput: `true`',
     tags: ['hashmap', 'string'],
     stub: `// HashMaps.ts
 
@@ -371,7 +393,7 @@ function isAnagram(s: string, t: string): boolean {
     name: 'Sorting with Comparators',
     category: 'Sorting',
     difficulty: 'Medium',
-    summary: 'Custom sort logic using lambdas/comparators.',
+    summary: 'Sort a list of intervals based on their start times using a custom comparator.\n\n**Example:**\nInput: `[[2, 6], [1, 3], [8, 10]]`\nOutput: `[[1, 3], [2, 6], [8, 10]]`',
     tags: ['sorting', 'comparator'],
     stub: `// Sorting.ts
 
@@ -413,7 +435,7 @@ function sortPeople(people: Person[]): void {
     name: 'PriorityQueue / Heaps',
     category: 'Heap',
     difficulty: 'Hard',
-    summary: 'Min-heaps for k-smallest, Max-heaps for k-largest.',
+    summary: 'Find the `k`-th largest element in an unsorted array.\n\n**Example:**\nInput: `[3, 2, 1, 5, 6, 4]`, `k = 2`\nOutput: `5`',
     tags: ['heap', 'priority-queue'],
     stub: `// Heaps.ts
 
@@ -502,7 +524,7 @@ function kthLargest(nums: number[], k: number): number {
     name: 'Union-Find (DSU)',
     category: 'Graph',
     difficulty: 'Hard',
-    summary: 'Track connected components, path compression, union by rank.',
+    summary: 'Determine if two elements belong to the same set and merge sets efficiently.\n\n**Example:**\nInput: Union(1, 2), Union(2, 3), Find(1, 3)\nOutput: `true` (1 and 3 are connected)',
     tags: ['graph', 'dsu', 'union-find'],
     stub: `// UnionFind.ts
 
@@ -564,7 +586,7 @@ class DSU {
     name: 'Backtracking (Subsets)',
     category: 'Recursion',
     difficulty: 'Medium',
-    summary: 'Generate subsets, combinations, permutations.',
+    summary: 'Generate all possible subsets (the power set) of a set of distinct integers.\n\n**Example:**\nInput: `[1, 2, 3]`\nOutput: `[[], [1], [2], [1, 2], [3], [1, 3], [2, 3], [1, 2, 3]]`',
     tags: ['recursion', 'backtracking'],
     stub: `// Backtracking.ts
 
@@ -605,7 +627,7 @@ function backtrack(start: number, curr: number[], nums: number[], res: number[][
     name: 'Dynamic Programming',
     category: 'DP',
     difficulty: 'Hard',
-    summary: 'Overlapping subproblems + optimal substructure.',
+    summary: 'Calculate the `n`-th Fibonacci number using dynamic programming (bottom-up).\n\n**Example:**\nInput: `n = 5`\nOutput: `5` (Sequence: 0, 1, 1, 2, 3, 5)',
     tags: ['dp', 'recursion'],
     stub: `// DP.ts
 
@@ -657,7 +679,7 @@ function lcs(a: string, b: string): number {
     name: 'Tree Traversal (Iterative)',
     category: 'Tree',
     difficulty: 'Medium',
-    summary: 'Iterative inorder traversal using explicit stack.',
+    summary: 'Perform an inorder traversal of a binary tree without using recursion (using a stack).\n\n**Example:**\nInput: `[1, null, 2, 3]` (Root 1, Right 2, Left-of-2 3)\nOutput: `[1, 3, 2]`',
     tags: ['tree', 'stack'],
     stub: `// TreeTraversal.ts
 
@@ -707,7 +729,7 @@ function inorderTraversal(root: TreeNode | null): number[] {
     name: 'Topological Sort (Kahn)',
     category: 'Graph',
     difficulty: 'Hard',
-    summary: 'Ordering tasks with dependencies in DAG.',
+    summary: 'Find a linear ordering of vertices in a directed graph such that for every edge u->v, u comes before v.\n\n**Example:**\nInput: `n = 2`, `edges = [[1, 0]]`\nOutput: `[1, 0]`',
     tags: ['graph', 'topo-sort'],
     stub: `// TopoSort.ts
 
@@ -755,7 +777,7 @@ function topoSort(n: number, edges: number[][]): number[] {
     name: 'Dijkstra Shortest Path',
     category: 'Graph',
     difficulty: 'Hard',
-    summary: 'Shortest paths from source with non-negative weights.',
+    summary: 'Find the shortest paths from a source node to all other nodes in a weighted graph.\n\n**Example:**\nInput: `0 -[1]-> 1`, Source `0`\nOutput: `[0, 1]` (Distance to 0 is 0, to 1 is 1)',
     tags: ['graph', 'shortest-path', 'dijkstra'],
     stub: `// Dijkstra.ts
 
