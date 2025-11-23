@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { useAlgorithmProgress } from '../hooks/useAlgorithmProgress';
+import ConfirmModal from './ConfirmModal';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -9,11 +10,19 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { resetProgress } = useAlgorithmProgress();
+  const [showResetModal, setShowResetModal] = useState(false);
 
-  const handleReset = () => {
-    if (window.confirm('Are you sure you want to reset all progress? This cannot be undone.')) {
-      resetProgress();
-    }
+  const handleResetClick = () => {
+    setShowResetModal(true);
+  };
+
+  const handleConfirmReset = () => {
+    resetProgress();
+    setShowResetModal(false);
+  };
+
+  const handleCancelReset = () => {
+    setShowResetModal(false);
   };
 
   return (
@@ -25,7 +34,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           </Link>
           <div className="flex items-center gap-4">
             <button
-              onClick={handleReset}
+              onClick={handleResetClick}
               className="text-sm text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 font-medium transition-colors"
             >
               Reset Progress
@@ -39,6 +48,16 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {children}
       </main>
+      
+      <ConfirmModal
+        isOpen={showResetModal}
+        title="Reset Progress"
+        message="Are you sure you want to reset all progress? This cannot be undone."
+        confirmText="Reset"
+        cancelText="Cancel"
+        onConfirm={handleConfirmReset}
+        onCancel={handleCancelReset}
+      />
     </div>
   );
 };
