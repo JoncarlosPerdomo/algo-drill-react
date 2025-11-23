@@ -43,6 +43,13 @@ const AlgorithmList: React.FC = () => {
     [search, difficultyFilter, statusFilter, getStatus]
   );
 
+  const sortedAlgorithms = useMemo(() => {
+    const difficultyWeight = { Easy: 1, Medium: 2, Hard: 3 };
+    return [...filtered].sort(
+      (a, b) => difficultyWeight[a.difficulty] - difficultyWeight[b.difficulty]
+    );
+  }, [filtered]);
+
   const difficultyColors = {
     Easy: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
     Medium: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
@@ -87,7 +94,7 @@ const AlgorithmList: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filtered.map((algo) => {
+        {sortedAlgorithms.map((algo) => {
           const status = getStatus(algo.id);
           return (
             <Link 
@@ -133,7 +140,7 @@ const AlgorithmList: React.FC = () => {
         })}
       </div>
 
-      {filtered.length === 0 && (
+      {sortedAlgorithms.length === 0 && (
         <div className="text-center py-12">
           <p className="text-gray-500 dark:text-gray-400 text-lg">No algorithms match your filters.</p>
         </div>

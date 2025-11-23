@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, Link, Navigate } from 'react-router-dom';
 import { transform } from 'sucrase';
-import { getAlgorithmById } from '../data/algorithms';
+import { getAlgorithmById, algorithms } from '../data/algorithms';
 import CodeBlock from './CodeBlock';
 import CodeEditor from './CodeEditor';
 import { useAlgorithmProgress, type ProgressStatus } from '../hooks/useAlgorithmProgress';
@@ -23,6 +23,19 @@ const AlgorithmDetail: React.FC = () => {
   const [userCode, setUserCode] = useState('');
   const [testResults, setTestResults] = useState<TestResult[] | null>(null);
   const [compileError, setCompileError] = useState<string | null>(null);
+
+  const nextAlgoId = useMemo(() => {
+    if (!algo) return null;
+    const difficultyWeight = { Easy: 1, Medium: 2, Hard: 3 };
+    const sorted = [...algorithms].sort(
+      (a, b) => difficultyWeight[a.difficulty] - difficultyWeight[b.difficulty]
+    );
+    const currentIndex = sorted.findIndex((a) => a.id === algo.id);
+    if (currentIndex !== -1 && currentIndex < sorted.length - 1) {
+      return sorted[currentIndex + 1].id;
+    }
+    return null;
+  }, [algo]);
 
   // Load saved code or use stub
   useEffect(() => {
@@ -126,9 +139,19 @@ const AlgorithmDetail: React.FC = () => {
 
   return (
     <div className="max-w-4xl mx-auto p-6">
-      <Link to="/" className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 mb-6 inline-block font-medium">
-        ← Back to list
-      </Link>
+      <div className="flex justify-between items-center mb-6">
+        <Link to="/" className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium">
+          ← Back to list
+        </Link>
+        {nextAlgoId && (
+          <Link
+            to={`/algorithms/${nextAlgoId}`}
+            className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium flex items-center gap-1"
+          >
+            Next Algorithm →
+          </Link>
+        )}
+      </div>
 
       <div className="mb-8">
         <h1 className="text-4xl font-bold mb-4 text-gray-900 dark:text-white">{algo.name}</h1>
