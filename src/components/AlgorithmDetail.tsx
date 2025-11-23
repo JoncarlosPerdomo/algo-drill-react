@@ -19,19 +19,32 @@ const AlgorithmDetail: React.FC = () => {
   const algo = id ? getAlgorithmById(id) : undefined;
   const [tab, setTab] = useState<'stub' | 'reference'>('stub');
   const [revealed, setRevealed] = useState(false);
-  const { getStatus, setStatus } = useAlgorithmProgress();
+  const { getStatus, setStatus, getCode, saveCode } = useAlgorithmProgress();
   
   const [userCode, setUserCode] = useState('');
   const [testResults, setTestResults] = useState<TestResult[] | null>(null);
   const [compileError, setCompileError] = useState<string | null>(null);
 
+  // Load saved code or use stub
   useEffect(() => {
     if (algo) {
-      setUserCode(algo.stub);
+      const savedCode = getCode(algo.id);
+      setUserCode(savedCode || algo.stub);
       setTestResults(null);
       setCompileError(null);
     }
-  }, [algo?.id]);
+  }, [algo?.id, getCode]);
+
+  // Save code when it changes
+  useEffect(() => {
+    if (algo && userCode && userCode !== algo.stub) {
+      const timeoutId = setTimeout(() => {
+        saveCode(algo.id, userCode);
+      }, 500); // Debounce for 500ms
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [userCode, algo, saveCode]);
 
   // Reset revealed state when switching to reference tab
   useEffect(() => {
@@ -51,6 +64,7 @@ const AlgorithmDetail: React.FC = () => {
   };
 
   const handleRun = () => {
+    // Clear previous results and errors when starting a new run
     setTestResults(null);
     setCompileError(null);
 
@@ -105,9 +119,6 @@ const AlgorithmDetail: React.FC = () => {
       });
 
       setTestResults(results);
-
-      // Auto-mark as comfortable if all passed? Maybe not, let user decide.
-      
     } catch (err: any) {
       setCompileError(err.message);
     }
@@ -161,12 +172,23 @@ const AlgorithmDetail: React.FC = () => {
               type="button"
               className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
                 status === 'comfortable'
-                  ? 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/50 dark:text-green-200 dark:border-green-800 border'
+                  ? 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/50 dark:text-blue-200 dark:border-blue-800 border'
                   : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700'
               }`}
               onClick={() => handleStatusChange('comfortable')}
             >
               Comfortable
+            </button>
+            <button
+              type="button"
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                status === 'complete'
+                  ? 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/50 dark:text-green-200 dark:border-green-800 border'
+                  : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700'
+              }`}
+              onClick={() => handleStatusChange('complete')}
+            >
+              Complete
             </button>
             {status && (
               <button
@@ -245,6 +267,26 @@ const AlgorithmDetail: React.FC = () => {
                   <strong>Compilation Error:</strong>
                   <br />
                   {compileError}
+                </div>
+              )}
+
+              {testResults && testResults.every(r => r.passed) && status !== 'complete' && (
+                <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div>
+                      <p className="font-medium text-green-800 dark:text-green-200">All tests passed! 🎉</p>
+                      <p className="text-sm text-green-700 dark:text-green-300">Great job! Ready to mark this as complete?</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => handleStatusChange('complete')}
+                    className="px-4 py-2 bg-green-600 text-white rounded-md font-medium hover:bg-green-700 transition-colors shadow-sm"
+                  >
+                    Mark as Complete
+                  </button>
                 </div>
               )}
 

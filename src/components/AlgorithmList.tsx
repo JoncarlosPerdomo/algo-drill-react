@@ -6,6 +6,7 @@ import { useAlgorithmProgress, type ProgressStatus } from '../hooks/useAlgorithm
 const statusLabel: Record<Exclude<ProgressStatus, null>, string> = {
   'needs-work': 'Needs Work',
   comfortable: 'Comfortable',
+  complete: 'Complete',
 };
 
 const AlgorithmList: React.FC = () => {
@@ -34,6 +35,7 @@ const AlgorithmList: React.FC = () => {
         if (statusFilter !== 'all') {
           if (statusFilter === 'needs-work' && status !== 'needs-work') return false;
           if (statusFilter === 'comfortable' && status !== 'comfortable') return false;
+          if (statusFilter === 'complete' && status !== 'complete') return false;
         }
 
         return true;
@@ -79,6 +81,7 @@ const AlgorithmList: React.FC = () => {
             <option value="all">All statuses</option>
             <option value="needs-work">Needs Work</option>
             <option value="comfortable">Comfortable</option>
+            <option value="complete">Complete</option>
           </select>
         </div>
       </div>
@@ -115,6 +118,8 @@ const AlgorithmList: React.FC = () => {
                       className={`px-2 py-1 rounded text-xs font-medium ${
                         status === 'needs-work'
                           ? 'bg-orange-100 text-orange-800 dark:bg-orange-900/50 dark:text-orange-200'
+                          : status === 'comfortable'
+                          ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-200'
                           : 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-200'
                       }`}
                     >
