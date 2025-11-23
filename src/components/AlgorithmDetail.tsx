@@ -17,8 +17,7 @@ interface TestResult {
 const AlgorithmDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const algo = id ? getAlgorithmById(id) : undefined;
-  const [tab, setTab] = useState<'stub' | 'reference'>('stub');
-  const [revealed, setRevealed] = useState(false);
+  const [tab, setTab] = useState<'stub' | 'solution'>('stub');
   const { getStatus, setStatus, getCode, saveCode } = useAlgorithmProgress();
   
   const [userCode, setUserCode] = useState('');
@@ -46,12 +45,7 @@ const AlgorithmDetail: React.FC = () => {
     }
   }, [userCode, algo, saveCode]);
 
-  // Reset revealed state when switching to reference tab
-  useEffect(() => {
-    if (tab === 'stub') {
-      setRevealed(false);
-    }
-  }, [tab]);
+
 
   if (!algo) {
     return <Navigate to="/" replace />;
@@ -219,33 +213,19 @@ const AlgorithmDetail: React.FC = () => {
           <button
             type="button"
             className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
-              tab === 'reference'
+              tab === 'solution'
                 ? 'border-blue-500 text-blue-600 dark:text-blue-400'
                 : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
             }`}
-            onClick={() => setTab('reference')}
+            onClick={() => setTab('solution')}
           >
-            Reference
+            Solution
           </button>
         </div>
 
         <div className="relative">
-          {tab === 'reference' ? (
-            !revealed ? (
-              <div className="bg-gray-100 dark:bg-gray-900 rounded-lg p-12 text-center border border-gray-200 dark:border-gray-700">
-                <p className="text-gray-600 dark:text-gray-400 mb-4">
-                  Try to solve it first! The reference implementation is hidden.
-                </p>
-                <button
-                  onClick={() => setRevealed(true)}
-                  className="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors shadow-sm"
-                >
-                  Reveal Solution
-                </button>
-              </div>
-            ) : (
-              <CodeBlock code={algo.reference} />
-            )
+          {tab === 'solution' ? (
+            <CodeBlock code={algo.solution} />
           ) : (
             <div className="space-y-4">
               <CodeEditor code={userCode} onChange={setUserCode} />

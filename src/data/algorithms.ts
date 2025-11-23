@@ -8,7 +8,7 @@ export interface Algorithm {
   summary: string;
   tags: string[];
   stub: string;
-  reference: string;
+  solution: string;
   testCases?: { input: any[]; expected: any }[];
 }
 
@@ -26,7 +26,7 @@ export const algorithms: Algorithm[] = [
   return -1;
 }
 `,
-    reference: `function binarySearch(nums: number[], target: number): number {
+    solution: `function binarySearch(nums: number[], target: number): number {
   let left = 0;
   let right = nums.length - 1;
 
@@ -82,7 +82,7 @@ function dfsTree(root: TreeNode | null): void {
   // - dfsTree(root.right)
 }
 `,
-    reference: `type AdjList = number[][];
+    solution: `type AdjList = number[][];
 
 function dfsGraph(node: number, graph: AdjList, visited: boolean[]): void {
   if (visited[node]) return;
@@ -132,7 +132,7 @@ function bfs(start: number, graph: AdjList): void {
   //   - push unvisited neighbors
 }
 `,
-    reference: `type AdjList = number[][];
+    solution: `type AdjList = number[][];
 
 function bfs(start: number, graph: AdjList): void {
   const n = graph.length;
@@ -188,7 +188,7 @@ function longestUniqueSubstring(s: string): number {
   return 0;
 }
 `,
-    reference: `function maxSumFixed(nums: number[], k: number): number {
+    solution: `function maxSumFixed(nums: number[], k: number): number {
   let sum = 0;
   let max = Number.MIN_SAFE_INTEGER;
 
@@ -249,7 +249,7 @@ function reverse(nums: number[]): void {
   // - swap and move pointers
 }
 `,
-    reference: `function twoSumSorted(nums: number[], target: number): number[] {
+    solution: `function twoSumSorted(nums: number[], target: number): number[] {
   let left = 0;
   let right = nums.length - 1;
 
@@ -302,7 +302,7 @@ function rangeSum(pre: number[], l: number, r: number): number {
   return 0;
 }
 `,
-    reference: `function prefixSum(nums: number[]): number[] {
+    solution: `function prefixSum(nums: number[]): number[] {
   const n = nums.length;
   const pre = new Array(n + 1).fill(0);
   
@@ -340,7 +340,7 @@ function isAnagram(s: string, t: string): boolean {
   return false;
 }
 `,
-    reference: `function buildFreqMap(s: string): Map<string, number> {
+    solution: `function buildFreqMap(s: string): Map<string, number> {
   const freq = new Map<string, number>();
   for (const c of s) {
     freq.set(c, (freq.get(c) || 0) + 1);
@@ -390,7 +390,7 @@ function sortPeople(people: Person[]): void {
   // TODO: custom comparator
 }
 `,
-    reference: `function sortIntervals(intervals: number[][]): void {
+    solution: `function sortIntervals(intervals: number[][]): void {
   intervals.sort((a, b) => a[0] - b[0]);
 }
 
@@ -429,7 +429,7 @@ function kthLargest(nums: number[], k: number): number {
   return 0;
 }
 `,
-    reference: `// Simple MinHeap Implementation for reference
+    solution: `// Simple MinHeap Implementation for reference
 class MinHeap {
   private heap: number[] = [];
 
@@ -526,7 +526,7 @@ class DSU {
   }
 }
 `,
-    reference: `class DSU {
+    solution: `class DSU {
   parent: number[];
   size: number[];
 
@@ -583,7 +583,7 @@ function backtrack(start: number, curr: number[], nums: number[], res: number[][
   // - pop
 }
 `,
-    reference: `function subsets(nums: number[]): number[][] {
+    solution: `function subsets(nums: number[]): number[][] {
   const res: number[][] = [];
   backtrack(0, [], nums, res);
   return res;
@@ -621,7 +621,7 @@ function lcs(a: string, b: string): number {
   return 0;
 }
 `,
-    reference: `function fib(n: number): number {
+    solution: `function fib(n: number): number {
   if (n < 2) return n;
   let prev2 = 0, prev1 = 1;
   
@@ -678,7 +678,7 @@ function inorderTraversal(root: TreeNode | null): number[] {
   return res;
 }
 `,
-    reference: `interface TreeNode {
+    solution: `interface TreeNode {
   val: number;
   left: TreeNode | null;
   right: TreeNode | null;
@@ -719,7 +719,7 @@ function topoSort(n: number, edges: number[][]): number[] {
   return [];
 }
 `,
-    reference: `function topoSort(n: number, edges: number[][]): number[] {
+    solution: `function topoSort(n: number, edges: number[][]): number[] {
   const graph: number[][] = Array.from({ length: n }, () => []);
   const indegree = new Array(n).fill(0);
 
@@ -769,7 +769,7 @@ function dijkstra(n: number, graph: number[][][], src: number): number[] {
   return [];
 }
 `,
-    reference: `// Requires MinHeap class (see Heaps algorithm for implementation)
+    solution: `// Requires MinHeap class (see Heaps algorithm for implementation)
 // For this reference, we'll assume a simple PriorityQueue implementation exists 
 // or use a naive array sort for brevity, but real Dijkstra needs a Heap.
 
