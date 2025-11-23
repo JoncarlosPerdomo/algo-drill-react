@@ -9,6 +9,7 @@ export interface Algorithm {
   tags: string[];
   stub: string;
   reference: string;
+  testCases?: { input: any[]; expected: any }[];
 }
 
 export const algorithms: Algorithm[] = [
@@ -20,14 +21,8 @@ export const algorithms: Algorithm[] = [
     summary:
       'Classic binary search on a sorted array. O(log n) time, O(1) space.',
     tags: ['array', 'search', 'logn'],
-    stub: `// BinarySearch.ts
-// Template: iterative binary search on a sorted array.
-function binarySearch(nums: number[], target: number): number {
-  // TODO: implement iterative binary search
-  // 1) let left = 0, right = nums.length - 1
-  // 2) while (left <= right):
-  // 3)   mid = Math.floor(left + (right - left) / 2)
-  // 4)   compare nums[mid] and target and move left/right
+    stub: `function binarySearch(nums: number[], target: number): number {
+  // TODO: write code below
   return -1;
 }
 `,
@@ -48,6 +43,11 @@ function binarySearch(nums: number[], target: number): number {
   return -1;
 }
 `,
+    testCases: [
+      { input: [[-1, 0, 3, 5, 9, 12], 9], expected: 4 },
+      { input: [[-1, 0, 3, 5, 9, 12], 2], expected: -1 },
+      { input: [[5], 5], expected: 0 },
+    ],
   },
   {
     id: 'dfs',

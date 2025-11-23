@@ -1,9 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, Navigate } from 'react-router-dom';
+import { transform } from 'sucrase';
 import { getAlgorithmById } from '../data/algorithms';
 import CodeBlock from './CodeBlock';
-import PracticeArea from './PracticeArea';
+import CodeEditor from './CodeEditor';
 import { useAlgorithmProgress, type ProgressStatus } from '../hooks/useAlgorithmProgress';
+
+interface TestResult {
+  input: string;
+  expected: string;
+  actual: string;
+  passed: boolean;
+  error?: string;
+}
 
 const AlgorithmDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -11,6 +20,18 @@ const AlgorithmDetail: React.FC = () => {
   const [tab, setTab] = useState<'stub' | 'reference'>('stub');
   const [revealed, setRevealed] = useState(false);
   const { getStatus, setStatus } = useAlgorithmProgress();
+  
+  const [userCode, setUserCode] = useState('');
+  const [testResults, setTestResults] = useState<TestResult[] | null>(null);
+  const [compileError, setCompileError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (algo) {
+      setUserCode(algo.stub);
+      setTestResults(null);
+      setCompileError(null);
+    }
+  }, [algo?.id]);
 
   // Reset revealed state when switching to reference tab
   useEffect(() => {
@@ -27,6 +48,69 @@ const AlgorithmDetail: React.FC = () => {
 
   const handleStatusChange = (newStatus: ProgressStatus) => {
     setStatus(algo.id, newStatus);
+  };
+
+  const handleRun = () => {
+    setTestResults(null);
+    setCompileError(null);
+
+    if (!algo.testCases || algo.testCases.length === 0) {
+      setCompileError('No test cases available for this algorithm.');
+      return;
+    }
+
+    try {
+      // 1. Compile TypeScript to JavaScript
+      const compiled = transform(userCode, {
+        transforms: ['typescript'],
+      }).code;
+
+      // 2. Extract function name (simple regex)
+      const match = userCode.match(/function\s+(\w+)/);
+      if (!match) {
+        throw new Error('Could not find a function definition.');
+      }
+      const fnName = match[1];
+
+      // 3. Create a function from the code
+      // We wrap it to return the target function
+      // eslint-disable-next-line @typescript-eslint/no-implied-eval
+      const createFn = new Function(`${compiled}; return ${fnName};`);
+      const userFn = createFn();
+
+      // 4. Run test cases
+      const results: TestResult[] = algo.testCases.map((tc) => {
+        try {
+          // Clone input to prevent mutation side effects affecting display or subsequent runs
+          const inputClone = JSON.parse(JSON.stringify(tc.input));
+          const result = userFn(...inputClone);
+          
+          const passed = JSON.stringify(result) === JSON.stringify(tc.expected);
+          
+          return {
+            input: JSON.stringify(tc.input),
+            expected: JSON.stringify(tc.expected),
+            actual: JSON.stringify(result),
+            passed,
+          };
+        } catch (err: any) {
+          return {
+            input: JSON.stringify(tc.input),
+            expected: JSON.stringify(tc.expected),
+            actual: 'Error',
+            passed: false,
+            error: err.message,
+          };
+        }
+      });
+
+      setTestResults(results);
+
+      // Auto-mark as comfortable if all passed? Maybe not, let user decide.
+      
+    } catch (err: any) {
+      setCompileError(err.message);
+    }
   };
 
   const difficultyColors = {
@@ -124,25 +208,101 @@ const AlgorithmDetail: React.FC = () => {
         </div>
 
         <div className="relative">
-          {tab === 'reference' && !revealed ? (
-            <div className="bg-gray-100 dark:bg-gray-900 rounded-lg p-12 text-center border border-gray-200 dark:border-gray-700">
-              <p className="text-gray-600 dark:text-gray-400 mb-4">
-                Try to solve it first! The reference implementation is hidden.
-              </p>
-              <button
-                onClick={() => setRevealed(true)}
-                className="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors shadow-sm"
-              >
-                Reveal Solution
-              </button>
-            </div>
+          {tab === 'reference' ? (
+            !revealed ? (
+              <div className="bg-gray-100 dark:bg-gray-900 rounded-lg p-12 text-center border border-gray-200 dark:border-gray-700">
+                <p className="text-gray-600 dark:text-gray-400 mb-4">
+                  Try to solve it first! The reference implementation is hidden.
+                </p>
+                <button
+                  onClick={() => setRevealed(true)}
+                  className="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors shadow-sm"
+                >
+                  Reveal Solution
+                </button>
+              </div>
+            ) : (
+              <CodeBlock code={algo.reference} />
+            )
           ) : (
-            <CodeBlock code={tab === 'stub' ? algo.stub : algo.reference} />
+            <div className="space-y-4">
+              <CodeEditor code={userCode} onChange={setUserCode} />
+              
+              <div className="flex justify-end">
+                <button
+                  onClick={handleRun}
+                  className="px-6 py-2 bg-green-600 text-white rounded-md font-medium hover:bg-green-700 transition-colors shadow-sm flex items-center gap-2"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+                  </svg>
+                  Run Code
+                </button>
+              </div>
+
+              {compileError && (
+                <div className="p-4 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-300 font-mono text-sm whitespace-pre-wrap">
+                  <strong>Compilation Error:</strong>
+                  <br />
+                  {compileError}
+                </div>
+              )}
+
+              {testResults && (
+                <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+                  <div className="px-4 py-3 bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700 font-medium text-gray-700 dark:text-gray-300">
+                    Test Results
+                  </div>
+                  <div className="divide-y divide-gray-200 dark:divide-gray-700">
+                    {testResults.map((res, idx) => (
+                      <div key={idx} className={`p-4 ${res.passed ? 'bg-green-50/50 dark:bg-green-900/10' : 'bg-red-50/50 dark:bg-red-900/10'}`}>
+                        <div className="flex items-start gap-3">
+                          <div className={`mt-1 flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center ${res.passed ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
+                            {res.passed ? (
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                              </svg>
+                            ) : (
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                              </svg>
+                            )}
+                          </div>
+                          <div className="flex-1 font-mono text-sm">
+                            <div className="mb-1">
+                              <span className="text-gray-500 dark:text-gray-400">Input:</span>{' '}
+                              <span className="text-gray-900 dark:text-gray-200">{res.input}</span>
+                            </div>
+                            {res.error ? (
+                              <div className="text-red-600 dark:text-red-400">
+                                Error: {res.error}
+                              </div>
+                            ) : (
+                              <>
+                                <div className="mb-1">
+                                  <span className="text-gray-500 dark:text-gray-400">Expected:</span>{' '}
+                                  <span className="text-gray-900 dark:text-gray-200">{res.expected}</span>
+                                </div>
+                                <div>
+                                  <span className="text-gray-500 dark:text-gray-400">Actual:</span>{' '}
+                                  <span className={`font-bold ${res.passed ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                                    {res.actual}
+                                  </span>
+                                </div>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           )}
         </div>
       </div>
 
-      <PracticeArea />
     </div>
   );
 };
