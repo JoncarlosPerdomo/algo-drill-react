@@ -24,6 +24,7 @@ const AlgorithmDetail: React.FC = () => {
   const [userCode, setUserCode] = useState('');
   const [testResults, setTestResults] = useState<TestResult[] | null>(null);
   const [compileError, setCompileError] = useState<string | null>(null);
+  const [showHint, setShowHint] = useState(false);
 
   const nextAlgoId = useMemo(() => {
     if (!algo) return null;
@@ -257,7 +258,18 @@ const AlgorithmDetail: React.FC = () => {
             <div className="space-y-4">
               <CodeEditor code={userCode} onChange={setUserCode} />
               
-              <div className="flex justify-end">
+              <div className="flex justify-end gap-2">
+                {algo.hint && (
+                  <button
+                    onClick={() => setShowHint(!showHint)}
+                    className="px-6 py-2 bg-yellow-100 text-yellow-800 border border-yellow-200 rounded-md font-medium hover:bg-yellow-200 transition-colors shadow-sm flex items-center gap-2 dark:bg-yellow-900/30 dark:text-yellow-200 dark:border-yellow-800"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                    </svg>
+                    {showHint ? 'Hide Hint' : 'Show Hint'}
+                  </button>
+                )}
                 <button
                   onClick={handleRun}
                   className="px-6 py-2 bg-green-600 text-white rounded-md font-medium hover:bg-green-700 transition-colors shadow-sm flex items-center gap-2"
@@ -268,6 +280,13 @@ const AlgorithmDetail: React.FC = () => {
                   Run Code
                 </button>
               </div>
+
+              {showHint && algo.hint && (
+                <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg text-yellow-800 dark:text-yellow-200 text-sm leading-relaxed prose dark:prose-invert max-w-none">
+                  <strong className="block mb-2">Hint:</strong>
+                  <ReactMarkdown>{algo.hint}</ReactMarkdown>
+                </div>
+              )}
 
               {compileError && (
                 <div className="p-4 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-300 font-mono text-sm whitespace-pre-wrap">

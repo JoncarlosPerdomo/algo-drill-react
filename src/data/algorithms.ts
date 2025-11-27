@@ -9,6 +9,7 @@ export interface Algorithm {
   tags: string[];
   stub: string;
   solution: string;
+  hint?: string;
   testCases?: { input: any[]; expected: any }[];
 }
 
@@ -22,10 +23,11 @@ export const algorithms: Algorithm[] = [
       'Find the index of a target value in a sorted array. Returns -1 if not found.\n\n**Example:**\nInput: `nums = [-1, 0, 3, 5, 9, 12]`, `target = 9`\nOutput: `4`',
     tags: ['array', 'search', 'logn'],
     stub: `function binarySearch(nums: number[], target: number): number {
-  // TODO: write code below
+  // Write your code here
   return -1;
 }
 `,
+    hint: 'Initialize left and right pointers. While left <= right, calculate mid. If nums[mid] is target, return mid. If nums[mid] < target, move left to mid + 1. Otherwise, move right to mid - 1.',
     solution: `function binarySearch(nums: number[], target: number): number {
   let left = 0;
   let right = nums.length - 1;
@@ -61,11 +63,7 @@ export const algorithms: Algorithm[] = [
 type AdjList = number[][];
 
 function dfsGraph(node: number, graph: AdjList, visited: boolean[]): void {
-  // TODO:
-  // - base: if visited[node] return
-  // - mark visited
-  // - process node
-  // - recurse on neighbors
+  // Write your code here
 }
 
 interface TreeNode {
@@ -75,13 +73,20 @@ interface TreeNode {
 }
 
 function dfsTree(root: TreeNode | null): void {
-  // TODO:
-  // - base: if !root return
-  // - pre-order work
-  // - dfsTree(root.left)
-  // - dfsTree(root.right)
+  // Write your code here
 }
 `,
+    hint: `Graph DFS:
+- Check if node is visited. If so, return.
+- Mark node as visited.
+- Process node.
+- Recursively call dfsGraph for each unvisited neighbor.
+
+Tree DFS:
+- Base case: if root is null, return.
+- Perform pre-order work (process node).
+- Recursively call dfsTree on left child.
+- Recursively call dfsTree on right child.`,
     solution: `type AdjList = number[][];
 
 function dfsGraph(node: number, graph: AdjList, visited: boolean[]): void {
@@ -123,15 +128,15 @@ function dfsTree(root: TreeNode | null): void {
 type AdjList = number[][];
 
 function bfs(start: number, graph: AdjList): void {
-  // TODO:
-  // - create visited[]
-  // - push start into queue
-  // - while queue not empty:
-  //   - pop front
-  //   - process
-  //   - push unvisited neighbors
+  // Write your code here
 }
 `,
+    hint: `- Initialize a visited array and a queue.
+- Mark start node as visited and push to queue.
+- While queue is not empty:
+  - Dequeue a node.
+  - Process the node.
+  - For each unvisited neighbor, mark as visited and enqueue.`,
     solution: `type AdjList = number[][];
 
 function bfs(start: number, graph: AdjList): void {
@@ -167,27 +172,28 @@ function bfs(start: number, graph: AdjList): void {
 
 // Fixed-size window: maximum sum of any subarray of length k
 function maxSumFixed(nums: number[], k: number): number {
-  // TODO:
-  // - init sum = 0, max = -Infinity
-  // - iterate i from 0 to n-1
-  // - add nums[i]
-  // - if i >= k, subtract nums[i-k]
-  // - if i >= k-1, update max
+  // Write your code here
   return 0;
 }
 
 // Variable-size window: longest substring without repeating characters
 function longestUniqueSubstring(s: string): number {
-  // TODO:
-  // - init left = 0, maxLen = 0
-  // - use Map or object for lastSeen
-  // - iterate right from 0 to s.length-1
-  // - if char seen and index >= left, update left
-  // - update lastSeen
-  // - update maxLen
+  // Write your code here
   return 0;
 }
 `,
+    hint: `Fixed-size window:
+- Initialize current sum and max sum.
+- Iterate through the array. Add the current element to sum.
+- If window size exceeds k (i >= k), subtract the element leaving the window (nums[i-k]).
+- If window size reached k (i >= k-1), update max sum.
+
+Variable-size window:
+- Use a map to store the last seen index of each character.
+- Initialize left pointer and max length.
+- Iterate right pointer through the string.
+- If s[right] is in map and its index >= left, move left to lastSeen[s[right]] + 1.
+- Update lastSeen for s[right] and update max length.`,
     solution: `function maxSumFixed(nums: number[], k: number): number {
   let sum = 0;
   let max = Number.MIN_SAFE_INTEGER;
@@ -232,16 +238,16 @@ function longestUniqueSubstring(s: string): number {
 
 // Two-sum in sorted array (returns indices)
 function twoSumSorted(nums: number[], target: number): number[] {
-  // TODO:
-  // - left = 0, right = n-1
-  // - while left < right:
-  //   - sum = nums[left] + nums[right]
-  //   - if match return [left, right]
-  //   - if sum < target, left++
-  //   - else right--
+  // Write your code here
   return [-1, -1];
 }
 `,
+    hint: `- Initialize left pointer at 0 and right pointer at n-1.
+- Loop while left < right:
+  - Calculate sum = nums[left] + nums[right].
+  - If sum equals target, return [left, right].
+  - If sum < target, increment left to increase sum.
+  - If sum > target, decrement right to decrease sum.`,
     solution: `function twoSumSorted(nums: number[], target: number): number[] {
   let left = 0;
   let right = nums.length - 1;
@@ -277,11 +283,13 @@ function twoSumSorted(nums: number[], target: number): number[] {
 
 // Reverse an array in-place
 function reverse(nums: number[]): void {
-  // TODO:
-  // - left = 0, right = n-1
-  // - swap and move pointers
+  // Write your code here
 }
 `,
+    hint: `- Initialize left pointer at start and right pointer at end.
+- While left < right:
+  - Swap nums[left] and nums[right].
+  - Increment left, decrement right.`,
     solution: `function reverse(nums: number[]): void {
   let left = 0;
   let right = nums.length - 1;
@@ -312,18 +320,22 @@ function reverse(nums: number[]): void {
     stub: `// PrefixSum.ts
 
 function prefixSum(nums: number[]): number[] {
-  // TODO:
-  // - create array size n+1
-  // - pre[0] = 0
-  // - loop and add cumulative sum
+  // Write your code here
   return [];
 }
 
 function rangeSum(pre: number[], l: number, r: number): number {
-  // TODO: return pre[r+1] - pre[l]
+  // Write your code here
   return 0;
 }
 `,
+    hint: `Prefix Sum Construction:
+- Create an array of size n+1.
+- Set pre[0] = 0.
+- Iterate through nums, setting pre[i+1] = pre[i] + nums[i].
+
+Range Sum Query:
+- Return pre[r+1] - pre[l].`,
     solution: `function prefixSum(nums: number[]): number[] {
   const n = nums.length;
   const pre = new Array(n + 1).fill(0);
@@ -349,19 +361,25 @@ function rangeSum(pre: number[], l: number, r: number): number {
     stub: `// HashMaps.ts
 
 function buildFreqMap(s: string): Map<string, number> {
-  // TODO: count char frequencies
+  // Write your code here
   return new Map();
 }
 
 function isAnagram(s: string, t: string): boolean {
-  // TODO:
-  // - check lengths
-  // - count chars in s
-  // - decrement for t
-  // - check all zero
+  // Write your code here
   return false;
 }
 `,
+    hint: `Build Frequency Map:
+- Iterate through string s.
+- Update count for each character in the map.
+
+Is Anagram:
+- Check if lengths are equal.
+- Build frequency map for s.
+- Iterate through t, decrementing counts in the map.
+- If any count becomes negative or if map isn't empty (conceptually), return false.
+- Alternatively, use an array of size 26 for lowercase English letters.`,
     solution: `function buildFreqMap(s: string): Map<string, number> {
   const freq = new Map<string, number>();
   for (const c of s) {
@@ -399,7 +417,7 @@ function isAnagram(s: string, t: string): boolean {
 
 // Sort 2D intervals by start time
 function sortIntervals(intervals: number[][]): void {
-  // TODO: sort by intervals[i][0]
+  // Write your code here
 }
 
 interface Person {
@@ -409,9 +427,16 @@ interface Person {
 
 // Sort by name, then age
 function sortPeople(people: Person[]): void {
-  // TODO: custom comparator
+  // Write your code here
 }
 `,
+    hint: `Sort Intervals:
+- Use array.sort((a, b) => a[0] - b[0]) to sort by start time.
+
+Sort People:
+- Use array.sort with a custom comparator.
+- First compare names using a.name.localeCompare(b.name).
+- If names are equal, compare ages (a.age - b.age).`,
     solution: `function sortIntervals(intervals: number[][]): void {
   intervals.sort((a, b) => a[0] - b[0]);
 }
@@ -444,13 +469,15 @@ function sortPeople(people: Person[]): void {
 // or implement a simple one using an array.
 
 function kthLargest(nums: number[], k: number): number {
-  // TODO:
-  // - push elements to min-heap
-  // - if size > k, pop
-  // - return peek
+  // Write your code here
   return 0;
 }
 `,
+    hint: `- Maintain a Min-Heap of size k.
+- Iterate through nums.
+- Push each number into the heap.
+- If heap size exceeds k, pop the smallest element (root).
+- After iterating, the root of the heap is the k-th largest element.`,
     solution: `// Simple MinHeap Implementation for reference
 class MinHeap {
   private heap: number[] = [];
@@ -533,21 +560,33 @@ class DSU {
   size: number[];
 
   constructor(n: number) {
-    // TODO: init parent[i]=i, size[i]=1
+    // Write your code here
     this.parent = [];
     this.size = [];
   }
 
   find(x: number): number {
-    // TODO: path compression
+    // Write your code here
     return 0;
   }
 
   union(a: number, b: number): void {
-    // TODO: union by size/rank
+    // Write your code here
   }
 }
 `,
+    hint: `Constructor:
+- Initialize parent array where parent[i] = i.
+- Initialize size array with 1s.
+
+Find:
+- If parent[x] != x, recursively set parent[x] = find(parent[x]) (Path Compression).
+- Return parent[x].
+
+Union:
+- Find roots of a and b.
+- If roots are different, attach the smaller tree to the larger tree (Union by Size).
+- Update size of the new root.`,
     solution: `class DSU {
   parent: number[];
   size: number[];
@@ -592,19 +631,19 @@ class DSU {
 
 function subsets(nums: number[]): number[][] {
   const res: number[][] = [];
-  // TODO: call backtrack
+  // Write your code here
   return res;
 }
 
 function backtrack(start: number, curr: number[], nums: number[], res: number[][]): void {
-  // TODO:
-  // - add copy of curr to res
-  // - loop i from start to n
-  // - push nums[i]
-  // - recurse
-  // - pop
+  // Write your code here
 }
 `,
+    hint: `- Base case: Add a copy of current subset (curr) to results.
+- Iterate from start index to end of nums.
+- Include nums[i] in curr.
+- Recurse with start = i + 1.
+- Backtrack: Remove last element from curr.`,
     solution: `function subsets(nums: number[]): number[][] {
   const res: number[][] = [];
   backtrack(0, [], nums, res);
@@ -633,16 +672,26 @@ function backtrack(start: number, curr: number[], nums: number[], res: number[][
 
 // Fibonacci bottom-up
 function fib(n: number): number {
-  // TODO: iterative O(n)
+  // Write your code here
   return 0;
 }
 
 // Longest Common Subsequence
 function lcs(a: string, b: string): number {
-  // TODO: 2D DP array
+  // Write your code here
   return 0;
 }
 `,
+    hint: `Fibonacci:
+- Handle base cases (n < 2).
+- Use two variables to store prev1 and prev2.
+- Iterate from 2 to n, updating variables.
+
+LCS:
+- Create a 2D DP array of size (m+1) x (n+1).
+- Iterate i from 1 to m, j from 1 to n.
+- If a[i-1] == b[j-1], dp[i][j] = 1 + dp[i-1][j-1].
+- Else, dp[i][j] = max(dp[i-1][j], dp[i][j-1]).`,
     solution: `function fib(n: number): number {
   if (n < 2) return n;
   let prev2 = 0, prev1 = 1;
@@ -692,14 +741,15 @@ interface TreeNode {
 function inorderTraversal(root: TreeNode | null): number[] {
   const res: number[] = [];
   const stack: TreeNode[] = [];
-  // TODO:
-  // - while cur or stack not empty
-  // - push left children
-  // - pop and process
-  // - move right
+  // Write your code here
   return res;
 }
 `,
+    hint: `- Initialize stack and current node (root).
+- While current is not null or stack is not empty:
+  - Push current and all left children to stack.
+  - Pop from stack, process node (add to result).
+  - Move current to right child.`,
     solution: `interface TreeNode {
   val: number;
   left: TreeNode | null;
@@ -734,13 +784,16 @@ function inorderTraversal(root: TreeNode | null): number[] {
     stub: `// TopoSort.ts
 
 function topoSort(n: number, edges: number[][]): number[] {
-  // TODO:
-  // - build graph and indegree
-  // - queue for indegree 0
-  // - process queue
+  // Write your code here
   return [];
 }
 `,
+    hint: `- Build adjacency list and indegree array.
+- Push all nodes with indegree 0 to a queue.
+- While queue is not empty:
+  - Dequeue node, add to order.
+  - Decrement indegree of neighbors.
+  - If neighbor's indegree becomes 0, enqueue it.`,
     solution: `function topoSort(n: number, edges: number[][]): number[] {
   const graph: number[][] = Array.from({ length: n }, () => []);
   const indegree = new Array(n).fill(0);
@@ -783,14 +836,16 @@ function topoSort(n: number, edges: number[][]): number[] {
 
 // graph[u] = [[v, weight], ...]
 function dijkstra(n: number, graph: number[][][], src: number): number[] {
-  // TODO:
-  // - dist array init to Infinity
-  // - priority queue (min-heap)
-  // - while pq not empty
-  // - relax edges
+  // Write your code here
   return [];
 }
 `,
+    hint: `- Initialize distances to Infinity, dist[src] = 0.
+- Use a Priority Queue (Min-Heap) storing [node, distance].
+- While PQ is not empty:
+  - Pop node with smallest distance.
+  - If current distance > dist[node], continue.
+  - For each neighbor, if new path is shorter, update dist and push to PQ.`,
     solution: `// Requires MinHeap class (see Heaps algorithm for implementation)
 // For this reference, we'll assume a simple PriorityQueue implementation exists 
 // or use a naive array sort for brevity, but real Dijkstra needs a Heap.
