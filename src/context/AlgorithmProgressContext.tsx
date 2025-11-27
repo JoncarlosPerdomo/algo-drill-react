@@ -1,4 +1,5 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
+import { get, set, del } from 'idb-keyval';
 
 export type ProgressStatus = 'needs-work' | 'comfortable' | 'complete' | null;
 
@@ -20,53 +21,67 @@ interface AlgorithmProgressContextType {
   saveCode: (id: string, code: string) => void;
   getCode: (id: string) => string | undefined;
   resetProgress: () => void;
+  isLoading: boolean;
 }
 
 const AlgorithmProgressContext = createContext<AlgorithmProgressContextType | undefined>(undefined);
 
-function loadProgress(): ProgressMap {
-  if (typeof window === 'undefined') return {};
-  try {
-    // Try loading v2 data first
-    const rawV2 = window.localStorage.getItem(VERSIONED_STORAGE_KEY);
-    if (rawV2) {
-      return JSON.parse(rawV2) as ProgressMap;
-    }
-
-    // Migrate v1 data if it exists
-    const rawV1 = window.localStorage.getItem(STORAGE_KEY);
-    if (rawV1) {
-      const oldProgress = JSON.parse(rawV1) as Record<string, ProgressStatus>;
-      const migratedProgress: ProgressMap = {};
-      
-      for (const [id, status] of Object.entries(oldProgress)) {
-        migratedProgress[id] = { status };
-      }
-      
-      // Save migrated data and remove old key
-      window.localStorage.setItem(VERSIONED_STORAGE_KEY, JSON.stringify(migratedProgress));
-      window.localStorage.removeItem(STORAGE_KEY);
-      
-      return migratedProgress;
-    }
-
-    return {};
-  } catch {
-    return {};
-  }
-}
-
-function saveProgress(progress: ProgressMap) {
-  if (typeof window === 'undefined') return;
-  window.localStorage.setItem(VERSIONED_STORAGE_KEY, JSON.stringify(progress));
-}
-
 export const AlgorithmProgressProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [progress, setProgress] = useState<ProgressMap>(() => loadProgress());
+  const [progress, setProgress] = useState<ProgressMap>({});
+  const [isLoading, setIsLoading] = useState(true);
 
+  // Load progress on mount
   useEffect(() => {
-    saveProgress(progress);
-  }, [progress]);
+    const initProgress = async () => {
+      try {
+        // 1. Try loading from IndexedDB
+        const dbData = await get<ProgressMap>(VERSIONED_STORAGE_KEY);
+        
+        if (dbData) {
+          setProgress(dbData);
+        } else {
+          // 2. If no DB data, check for localStorage data (Migration)
+          if (typeof window !== 'undefined') {
+            const localV2 = window.localStorage.getItem(VERSIONED_STORAGE_KEY);
+            const localV1 = window.localStorage.getItem(STORAGE_KEY);
+
+            if (localV2) {
+              // Migrate v2
+              const parsed = JSON.parse(localV2) as ProgressMap;
+              setProgress(parsed);
+              await set(VERSIONED_STORAGE_KEY, parsed);
+              window.localStorage.removeItem(VERSIONED_STORAGE_KEY);
+            } else if (localV1) {
+              // Migrate v1
+              const oldProgress = JSON.parse(localV1) as Record<string, ProgressStatus>;
+              const migratedProgress: ProgressMap = {};
+              for (const [id, status] of Object.entries(oldProgress)) {
+                migratedProgress[id] = { status };
+              }
+              setProgress(migratedProgress);
+              await set(VERSIONED_STORAGE_KEY, migratedProgress);
+              window.localStorage.removeItem(STORAGE_KEY);
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Failed to load progress:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    initProgress();
+  }, []);
+
+  // Save progress on change
+  useEffect(() => {
+    if (!isLoading) {
+      set(VERSIONED_STORAGE_KEY, progress).catch(err => 
+        console.error('Failed to save progress:', err)
+      );
+    }
+  }, [progress, isLoading]);
 
   const setStatus = React.useCallback((id: string, status: ProgressStatus) => {
     setProgress((prev) => ({
@@ -86,16 +101,22 @@ export const AlgorithmProgressProvider: React.FC<{ children: React.ReactNode }> 
 
   const getCode = React.useCallback((id: string): string | undefined => progress[id]?.code, [progress]);
 
-  const resetProgress = React.useCallback(() => {
+  const resetProgress = React.useCallback(async () => {
     setProgress({});
-    if (typeof window !== 'undefined') {
-      window.localStorage.removeItem(VERSIONED_STORAGE_KEY);
-      window.localStorage.removeItem(STORAGE_KEY); // Clean up old key too
+    try {
+      await del(VERSIONED_STORAGE_KEY);
+      // Double check cleanup of old keys just in case
+      if (typeof window !== 'undefined') {
+        window.localStorage.removeItem(VERSIONED_STORAGE_KEY);
+        window.localStorage.removeItem(STORAGE_KEY);
+      }
+    } catch (error) {
+      console.error('Failed to reset progress:', error);
     }
   }, []);
 
   return (
-    <AlgorithmProgressContext.Provider value={{ progress, setStatus, getStatus, saveCode, getCode, resetProgress }}>
+    <AlgorithmProgressContext.Provider value={{ progress, setStatus, getStatus, saveCode, getCode, resetProgress, isLoading }}>
       {children}
     </AlgorithmProgressContext.Provider>
   );
