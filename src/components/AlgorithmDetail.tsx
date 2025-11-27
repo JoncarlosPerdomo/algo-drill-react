@@ -94,43 +94,40 @@ const AlgorithmDetail: React.FC = () => {
       }
       const fnName = match[1];
 
-      // 3. Create a function from the code
-      // We wrap it to return the target function
-      // eslint-disable-next-line @typescript-eslint/no-implied-eval
-      const createFn = new Function(`${compiled}; return ${fnName};`);
-      const userFn = createFn();
-
-      // 4. Run test cases
-      const results: TestResult[] = algo.testCases.map((tc) => {
-        try {
-          // Clone input to prevent mutation side effects affecting display or subsequent runs
-          const inputClone = JSON.parse(JSON.stringify(tc.input));
-          const result = userFn(...inputClone);
-          
-          // If result is undefined (void function), check if the first argument matches expected
-          // This supports in-place algorithms like reverse(nums)
-          const actual = result === undefined ? inputClone[0] : result;
-          
-          const passed = JSON.stringify(actual) === JSON.stringify(tc.expected);
-          
-          return {
-            input: JSON.stringify(tc.input),
-            expected: JSON.stringify(tc.expected),
-            actual: JSON.stringify(actual),
-            passed,
-          };
-        } catch (err: any) {
-          return {
-            input: JSON.stringify(tc.input),
-            expected: JSON.stringify(tc.expected),
-            actual: 'Error',
-            passed: false,
-            error: err.message,
-          };
-        }
+      // 3. Execute in Web Worker with timeout
+      const worker = new Worker(new URL('../workers/codeRunner.ts', import.meta.url), {
+        type: 'module',
       });
 
-      setTestResults(results);
+      const timeoutId = setTimeout(() => {
+        worker.terminate();
+        setCompileError('Time Limit Exceeded: Your code took too long to execute. Check for infinite loops.');
+      }, 2000); // 2 second timeout
+
+      worker.onmessage = (e) => {
+        clearTimeout(timeoutId);
+        const { results, error } = e.data;
+        
+        if (error) {
+          setCompileError(error);
+        } else {
+          setTestResults(results);
+        }
+        worker.terminate();
+      };
+
+      worker.onerror = (err) => {
+        clearTimeout(timeoutId);
+        setCompileError(`Worker Error: ${err.message}`);
+        worker.terminate();
+      };
+
+      worker.postMessage({
+        code: compiled,
+        fnName,
+        testCases: algo.testCases,
+      });
+
     } catch (err: any) {
       setCompileError(err.message);
     }
